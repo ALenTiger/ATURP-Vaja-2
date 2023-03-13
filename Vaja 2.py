@@ -2,26 +2,43 @@ import time
 
 ladje = []
 def napolniLadje(n):
+    ladje.clear()
     for i in range(n):
-        ladje.append([i, 0, 0, 0])#0: index staraša, 1: razdalja do starša, 2: index do trenutno glavnega, razdalja do trenutno glavnega
+        ladje.append([i, i, i, 0])#0: index staraša, 1: index sina, 2: index glavnega, razdalja do glavnega
+
+def printLadje():
+    output = "ladje: "
+    index = 0
+    while(ladje[index][1] != index):
+        index = ladje[index][1]
+    
+    while(ladje[index][0] != index):
+        output += "-> " + str(index+1)
+        index = ladje[index][0]
+    output += "-> " + str(index+1)
+    print(output)
+
+def zracunajRazdaljo(M, S):
+    return abs(M - S) % 1000
 
 def union(M, S):
-    ladje[M][0] = S
-    ladje[M][1] = abs(M - S) % 1000
-    razdalaja=0
-    X = S
-    while(X != ladje[X][0]):
-        razdalja += ladje[X][1]
-        X = ladje[X][0]
-    ladje[M][2] = X
-    ladje[M][3] = razdalaja
+    #ladje[M][0] = S # S dobi očeta S
+    ladje[S][1] = M # S dobi sina M
+    ladje[M][2] = ladje[S][2] # M dobi očeta, ki je oče od S
+    prelomna_razdalja = ladje[S][3] + zracunajRazdaljo(M, S)
+
+    ladje[M][3] += prelomna_razdalja
+
+
+    M = ladje[M][1]
+    S = ladje[S][1]
+    while( M != S):
+        ladje[M][3] += prelomna_razdalja
+        M = ladje[M][1]
+        S = ladje[S][1]
 
 def razdaljaG(X):
-    razdalja = 0
-    while(X != ladje[X][0]): 
-        razdalja += ladje[X][3]
-        X = ladje[X][2]
-    return razdalja
+    return ladje[X][3]
 
 def testFile(path, output_to_console=True, output_to_file=False, debug_progress=False):
     test_examples = []
@@ -53,4 +70,5 @@ def testFile(path, output_to_console=True, output_to_file=False, debug_progress=
         print(f"Elapsed time: {elapsed_time} seconds")
 
 #testFile("estudij_pdf_primer_test.txt", True, False, False)
+#printLadje()
 testFile("testni_primer2.txt", False, True, True)
